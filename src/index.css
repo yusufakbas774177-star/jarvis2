@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* Custom holographic scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(4, 12, 24, 0.7);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 210, 255, 0.35);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 210, 255, 0.7);
+  }
+}
+
+/* Futuristic Scanline Effect */
+.stark-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 220, 255, 0.025) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  background-size: 100% 3px, 6px 100%;
+}
+
+/* Hologram grid pattern */
+.stark-grid-bg {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 180, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 180, 255, 0.06) 1px, transparent 1px);
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse-slow {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.35), inset 0 0 15px rgba(0, 210, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(0, 210, 255, 0.7), inset 0 0 25px rgba(0, 210, 255, 0.45);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: spin-reverse-slow 15s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
