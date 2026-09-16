@@ -4,9 +4,10 @@ import {
   Activity, 
   Wifi, 
   Clock, 
-  HardDrive,
   MapPin,
-  Laptop
+  Laptop,
+  Battery,
+  BatteryCharging
 } from 'lucide-react';
 import { playChirp } from '../utils/soundEffects';
 
@@ -14,12 +15,18 @@ interface SystemTelemetryBarProps {
   onStartMenuClick?: () => void;
   locationCity?: string;
   devicesCount?: number;
+  platformName?: string;
+  batteryLevel?: number | null;
+  isCharging?: boolean | null;
 }
 
 export const SystemTelemetryBar: React.FC<SystemTelemetryBarProps> = ({
   onStartMenuClick,
   locationCity = 'İstanbul',
-  devicesCount = 0
+  devicesCount = 0,
+  platformName = 'Windows Workstation',
+  batteryLevel = null,
+  isCharging = null
 }) => {
   const [timeStr, setTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
@@ -67,7 +74,7 @@ export const SystemTelemetryBar: React.FC<SystemTelemetryBarProps> = ({
 
         <div className="hidden sm:flex items-center space-x-1 text-slate-400">
           <Laptop className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-cyan-400 font-bold">WINDOWS-PC</span>
+          <span className="text-cyan-400 font-bold">{platformName}</span>
           <span>|</span>
           <span className="text-emerald-400">J.A.R.V.I.S. ASİSTAN: ÇEVRİMİÇİ</span>
         </div>
@@ -96,6 +103,13 @@ export const SystemTelemetryBar: React.FC<SystemTelemetryBarProps> = ({
           <Wifi className="w-3.5 h-3.5" />
           <span>AKILLI EV ({devicesCount} CİHAZ)</span>
         </div>
+
+        {batteryLevel !== null && (
+          <div className="flex items-center space-x-1 text-cyan-300">
+            {isCharging ? <BatteryCharging className="w-3.5 h-3.5 text-emerald-400" /> : <Battery className="w-3.5 h-3.5 text-cyan-400" />}
+            <span>PİL: %{batteryLevel}</span>
+          </div>
+        )}
       </div>
 
       {/* Right: Date & Clock */}

@@ -34,6 +34,9 @@ interface NeuralCoreHUDProps {
   locationWeather: LocationWeatherState;
   onRefreshLocation: () => void;
   devicesCount: number;
+  onOpenRadar?: () => void;
+  radarHighlight?: string;
+  nearbyCitiesSummary?: string;
 }
 
 export const NeuralCoreHUD: React.FC<NeuralCoreHUDProps> = ({
@@ -42,7 +45,10 @@ export const NeuralCoreHUD: React.FC<NeuralCoreHUDProps> = ({
   onPulseCore,
   locationWeather,
   onRefreshLocation,
-  devicesCount
+  devicesCount,
+  onOpenRadar,
+  radarHighlight,
+  nearbyCitiesSummary
 }) => {
   const [pulseScale, setPulseScale] = useState(1);
   const [sineOffset, setSineOffset] = useState(0);
@@ -110,6 +116,29 @@ export const NeuralCoreHUD: React.FC<NeuralCoreHUDProps> = ({
           <RefreshCw className={`w-3.5 h-3.5 ${locationWeather.loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
+
+      {/* Quick Regional Radar & News Intelligence Bar */}
+      {onOpenRadar && (
+        <div 
+          onClick={() => {
+            playChirp(1100);
+            onOpenRadar();
+          }}
+          className="w-full mt-2 bg-[#061633]/90 hover:bg-[#09224f] border border-cyan-500/30 hover:border-cyan-400/60 rounded-lg px-3 py-2 flex items-center justify-between cursor-pointer transition-all shadow-sm group"
+        >
+          <div className="flex items-center space-x-2 text-xs truncate mr-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span className="text-cyan-300 font-bold font-mono shrink-0">Bölgesel Radar:</span>
+            <span className="text-slate-300 truncate text-[11px] font-sans">
+              {radarHighlight || '1-3 Gün: Lodos / Feribot Uyarısı • Çevre İller: Kocaeli, Bursa, İstanbul'}
+            </span>
+          </div>
+          <span className="text-[10px] text-cyan-400 font-mono flex items-center gap-1 group-hover:text-cyan-200 shrink-0">
+            <span>Radarı Aç</span>
+            <span>➔</span>
+          </span>
+        </div>
+      )}
 
       {/* Central Neural Pulse / Voice Waveform Centerpiece */}
       <div 

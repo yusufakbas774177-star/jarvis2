@@ -29,7 +29,7 @@ export function speakText(text: string, lang = 'tr-TR', onDone?: () => void) {
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = lang;
     utterance.rate = 1.05;
-    utterance.pitch = 0.95; // Slightly lower, poised British tone
+    utterance.pitch = 0.95; // Slightly lower, poised tone
 
     // Try to pick a suitable voice
     const voices = window.speechSynthesis.getVoices();
@@ -108,4 +108,35 @@ export function createSpeechRecognizer(
   };
 
   return recognition;
+}
+
+export function startSpeechRecognition(
+  onResult: (text: string) => void,
+  onEnd?: () => void,
+  lang = 'tr-TR'
+): () => void {
+  const recognizer = createSpeechRecognizer(
+    lang,
+    (text) => {
+      onResult(text);
+    },
+    () => {
+      if (onEnd) onEnd();
+    }
+  );
+
+  if (recognizer) {
+    recognizer.onend = () => {
+      if (onEnd) onEnd();
+    };
+    try {
+      recognizer.start();
+      return () => recognizer.stop();
+    } catch {
+      if (onEnd) onEnd();
+    }
+  } else {
+    if (onEnd) onEnd();
+  }
+  return () => {};
 }

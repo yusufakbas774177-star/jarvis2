@@ -1,54 +1,63 @@
 ================================================================
-           J.A.R.V.I.S. WINDOWS ÇALIŞTIRMA REHBERİ
+           J.A.R.V.I.S. WINDOWS ÇALIŞTIRMA VE HATA ÇÖZÜM REHBERİ
 ================================================================
 
 İndirdiğiniz bu proje, modern bir tam kapsamlı (Full-Stack Express + React) 
 J.A.R.V.I.S. Windows asistanı uygulamasıdır.
 
-Bilgisayarınızda çalıştırmak için aşağıdaki adımları uygulayın:
+----------------------------------------------------------------
+1. EN SIK KARŞILAŞILAN BAŞLAT.BAT SORUNLARI VE ÇÖZÜMLERİ
+----------------------------------------------------------------
+
+SORUN A: "Baslat.bat açılıyor ve hemen geri kapanıyor"
+ÇÖZÜM:
+1. İndirdiğiniz .ZIP dosyasını MUTLAKA klasöre çıkartın:
+   - ZIP dosyasına sağ tıklayın -> "Tümünü Ayıkla" (Extract All).
+   - ZIP'in içindeyken doğrudan Baslat.bat'a tıklarsanız Windows geçici 
+     klasörde açtığı için dosyalar bulunamaz ve kapanır.
+2. Bilgisayarınızda Node.js kurulu olmayabilir:
+   - https://nodejs.org adresine gidin.
+   - "LTS" yeşil butonunu indirip kurun. Kurulum bittikten sonra Baslat.bat'ı 
+     tekrar açın.
+
+SORUN B: "Port 3000 zaten kullanımda (EADDRINUSE)"
+ÇÖZÜM:
+- Yeni Baslat.bat bu durumu otomatik algılar ve eski açık kalan J.A.R.V.I.S. 
+  oturumunu kapatır.
+- Manuel kapatmak isterseniz: Görev Yöneticisi'ni (Ctrl+Shift+Esc) açıp 
+  "Node.js: Server-side JavaScript" görevlerini sonlandırın.
+
+SORUN C: "Tarayıcı açıldı ama 'Bu siteye ulaşılamıyor' diyor"
+ÇÖZÜM:
+- İlk açılışta paketlerin (node_modules) yüklenmesi bilgisayarınıza ve 
+  internetinize bağlı olarak 1-2 dakika sürebilir.
+- Siyah CMD konsol penceresini kapatmayın. "Server running on http://localhost:3000" 
+  yazısını gördükten sonra sayfayı yenileyin (F5).
 
 ----------------------------------------------------------------
-1. ÖN KOŞUL: NODE.JS KURULUMU
+2. MANUEL ÇALIŞTIRMA (ALTERNATİF YÖNTEM)
 ----------------------------------------------------------------
-Bilgisayarınızda Node.js kurulu değilse:
-1. https://nodejs.org adresine gidin.
-2. "LTS" (Uzun Süreli Destek - Yeşil Buton) sürümünü indirip kurun.
-(İleri > İleri > Son diyerek varsayılan ayarlarla yükleyebilirsiniz.)
-
-----------------------------------------------------------------
-2. ÇALIŞTIRMA (EN KOLAY YÖNTEM)
-----------------------------------------------------------------
-1. İndirdiğiniz ZIP dosyasını bir klasöre çıkartın (Sağ tık -> Tümünü Ayıkla).
-2. Çıkardığınız klasörün içindeki "Baslat.bat" dosyasına ÇİFT TIKLAYIN.
-3. İlk açılışta gerekli paketler otomatik indirilecek ve tarayıcınızda 
-   http://localhost:3000 adresi açılarak J.A.R.V.I.S. çalışmaya başlayacaktır!
-
-----------------------------------------------------------------
-3. MANUEL ÇALIŞTIRMA (CMD / PowerShell ile)
-----------------------------------------------------------------
-Klasörün içine girip adres çubuğuna 'cmd' yazıp Enter'a basarak komut 
-satırını açın:
-1. Paketleri yükleyin:
+Baslat.bat yerine komut satırından açmak isterseniz:
+1. Proje klasörünün içine girin.
+2. Klasörün üstündeki adres çubuğuna tıklayıp 'cmd' yazıp Enter'a basın.
+3. Şu komutları sırayla çalıştırın:
    npm install
-2. Uygulamayı başlatın:
    npm run dev
-3. Tarayıcınızda açın:
+4. Tarayıcınızda açın:
    http://localhost:3000
 
 ----------------------------------------------------------------
-4. GEMINI YAPAY ZEKA ANAHTARI (İsteğe Bağlı ama Önerilir)
+3. GEMINI YAPAY ZEKA ANAHTARI (İsteğe Bağlı)
 ----------------------------------------------------------------
-J.A.R.V.I.S.'ın gerçek yapay zeka beyniyle cevap vermesi için:
-1. Klasördeki ".env.example" dosyasını kopyalayıp adını ".env" yapın.
-2. https://aistudio.google.com adresinden ücretsiz aldığınız API anahtarını 
-   bu dosyaya yazın:
+J.A.R.V.I.S.'ın bulut yapay zeka beynini bağlamak için:
+1. Proje klasöründeki ".env" dosyasını Not Defteri ile açın.
+2. https://aistudio.google.com adresinden aldığınız ücretsiz API anahtarını ekleyin:
    GEMINI_API_KEY="AIzaSy..."
 
 ----------------------------------------------------------------
-5. TAM BİR MASAÜSTÜ UYGULAMASI (.EXE GİBİ) YAPMAK İÇİN
+4. TAM MASAÜSTÜ UYGULAMASI (.EXE GİBİ) YAPMAK İÇİN
 ----------------------------------------------------------------
 Uygulama tarayıcınızda (Chrome veya Microsoft Edge) açıkken:
-- Sağ üstteki üç noktaya (...) tıklayın.
-- "Uygulamalar" (Apps) -> "Bu siteyi uygulama olarak yükle" seçeneğine tıklayın.
-Böylece J.A.R.V.I.S. tıpkı bağımsız bir Windows programı (.exe) gibi kendi 
-penceresinde açılacak ve masaüstünüze kısayol eklenecektir!
+1. Sağ üstteki üç noktaya (...) tıklayın.
+2. "Uygulamalar" (Apps) -> "Bu siteyi uygulama olarak yükle" seçeneğine tıklayın.
+Böylece J.A.R.V.I.S. bağımsız bir Windows programı gibi kendi penceresinde açılır!

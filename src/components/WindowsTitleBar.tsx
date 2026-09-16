@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Minus, 
   Square, 
@@ -7,13 +7,18 @@ import {
   Volume2, 
   VolumeX, 
   Mic, 
-  FolderKanban,
-  Home,
-  Sparkles,
-  Radio,
-  MapPin
+  FolderKanban, 
+  Home, 
+  Sparkles, 
+  Radio, 
+  MapPin,
+  Calendar,
+  FileText,
+  Cpu,
+  Smartphone,
+  Monitor
 } from 'lucide-react';
-import { SystemView } from '../types';
+import { SystemView, DeviceInfo, DeviceMode } from '../types';
 import { playChirp } from '../utils/soundEffects';
 
 interface WindowsTitleBarProps {
@@ -28,6 +33,11 @@ interface WindowsTitleBarProps {
   onClose: () => void;
   devicesCount: number;
   locationCity?: string;
+  pendingTasksCount?: number;
+  radarAlertsCount?: number;
+  deviceInfo?: DeviceInfo;
+  deviceMode?: DeviceMode;
+  onToggleDeviceMode?: () => void;
 }
 
 export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
@@ -41,7 +51,12 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
   onToggleCompact,
   onClose,
   devicesCount,
-  locationCity
+  locationCity,
+  pendingTasksCount = 0,
+  radarAlertsCount = 0,
+  deviceInfo,
+  deviceMode,
+  onToggleDeviceMode
 }) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
@@ -61,6 +76,20 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
   const navItems: { id: SystemView; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: 'hud', label: 'J.A.R.V.I.S. Asistan', icon: <Sparkles className="w-4 h-4 text-cyan-400" /> },
     { 
+      id: 'radar', 
+      label: 'Bölgesel Radar & Haberler', 
+      icon: <Radio className="w-4 h-4 text-emerald-400" />,
+      badge: radarAlertsCount > 0 ? `${radarAlertsCount} Uyarı` : 'Gündem'
+    },
+    { 
+      id: 'planner', 
+      label: 'Ajanda & Görevler', 
+      icon: <Calendar className="w-4 h-4 text-sky-400" />,
+      badge: pendingTasksCount > 0 ? `${pendingTasksCount}` : undefined
+    },
+    { id: 'notes', label: 'Sesli Notlar', icon: <FileText className="w-4 h-4 text-violet-400" /> },
+    { id: 'tools', label: 'AI Araçları', icon: <Cpu className="w-4 h-4 text-amber-400" /> },
+    { 
       id: 'smarthome', 
       label: 'Akıllı Ev', 
       icon: <Home className="w-4 h-4 text-emerald-400" />, 
@@ -76,7 +105,7 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
       className="h-12 bg-[#060e1c]/95 backdrop-blur-md border-b border-cyan-500/30 flex items-center justify-between px-3 select-none z-50 text-xs font-mono text-cyan-200"
     >
       {/* Left: Assistant Logo & Window Branding */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 shrink-0">
         <div className="relative flex items-center justify-center w-7 h-7 rounded-full bg-cyan-950/80 border border-cyan-400/60 shadow-[0_0_12px_rgba(0,229,255,0.4)]">
           <div className="w-2.5 h-2.5 rounded-full bg-cyan-300 animate-ping opacity-60 absolute" />
           <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_#00e5ff]" />
@@ -94,7 +123,7 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
       </div>
 
       {/* Middle: Main Navigation Tabs */}
-      <nav id="jarvis-navigation-tabs" className="flex items-center space-x-1 bg-[#09152b]/80 p-1 rounded-lg border border-cyan-500/20">
+      <nav id="jarvis-navigation-tabs" className="flex items-center space-x-1 bg-[#09152b]/80 p-1 rounded-lg border border-cyan-500/20 overflow-x-auto mx-2">
         {navItems.map((item) => {
           const active = currentView === item.id;
           return (
@@ -105,7 +134,7 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
                 playChirp(1100);
                 onViewChange(item.id);
               }}
-              className={`flex items-center space-x-2 px-3 py-1.5 rounded-md transition-all text-xs font-medium cursor-pointer ${
+              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-medium cursor-pointer shrink-0 ${
                 active
                   ? 'bg-cyan-500/25 text-cyan-200 border border-cyan-400/50 shadow-[0_0_10px_rgba(0,229,255,0.25)]'
                   : 'text-slate-400 hover:text-cyan-200 hover:bg-cyan-500/10'
@@ -124,7 +153,22 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
       </nav>
 
       {/* Right: Sound / Voice Toggles & Window System Buttons */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 shrink-0">
+        {/* Device Mode Switcher */}
+        {onToggleDeviceMode && (
+          <button
+            onClick={() => {
+              playChirp(1200);
+              onToggleDeviceMode();
+            }}
+            className="px-2 py-1 rounded bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-[10px] flex items-center gap-1.5 cursor-pointer"
+            title="Mobil Görünümüne Geç"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Mobil Mod</span>
+          </button>
+        )}
+
         {/* Audio FX Toggle */}
         <button
           id="btn-sound-toggle"
