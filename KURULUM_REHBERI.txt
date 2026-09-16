@@ -1,0 +1,54 @@
+================================================================
+           J.A.R.V.I.S. WINDOWS ÇALIŞTIRMA REHBERİ
+================================================================
+
+İndirdiğiniz bu proje, modern bir tam kapsamlı (Full-Stack Express + React) 
+J.A.R.V.I.S. Windows asistanı uygulamasıdır.
+
+Bilgisayarınızda çalıştırmak için aşağıdaki adımları uygulayın:
+
+----------------------------------------------------------------
+1. ÖN KOŞUL: NODE.JS KURULUMU
+----------------------------------------------------------------
+Bilgisayarınızda Node.js kurulu değilse:
+1. https://nodejs.org adresine gidin.
+2. "LTS" (Uzun Süreli Destek - Yeşil Buton) sürümünü indirip kurun.
+(İleri > İleri > Son diyerek varsayılan ayarlarla yükleyebilirsiniz.)
+
+----------------------------------------------------------------
+2. ÇALIŞTIRMA (EN KOLAY YÖNTEM)
+----------------------------------------------------------------
+1. İndirdiğiniz ZIP dosyasını bir klasöre çıkartın (Sağ tık -> Tümünü Ayıkla).
+2. Çıkardığınız klasörün içindeki "Baslat.bat" dosyasına ÇİFT TIKLAYIN.
+3. İlk açılışta gerekli paketler otomatik indirilecek ve tarayıcınızda 
+   http://localhost:3000 adresi açılarak J.A.R.V.I.S. çalışmaya başlayacaktır!
+
+----------------------------------------------------------------
+3. MANUEL ÇALIŞTIRMA (CMD / PowerShell ile)
+----------------------------------------------------------------
+Klasörün içine girip adres çubuğuna 'cmd' yazıp Enter'a basarak komut 
+satırını açın:
+1. Paketleri yükleyin:
+   npm install
+2. Uygulamayı başlatın:
+   npm run dev
+3. Tarayıcınızda açın:
+   http://localhost:3000
+
+----------------------------------------------------------------
+4. GEMINI YAPAY ZEKA ANAHTARI (İsteğe Bağlı ama Önerilir)
+----------------------------------------------------------------
+J.A.R.V.I.S.'ın gerçek yapay zeka beyniyle cevap vermesi için:
+1. Klasördeki ".env.example" dosyasını kopyalayıp adını ".env" yapın.
+2. https://aistudio.google.com adresinden ücretsiz aldığınız API anahtarını 
+   bu dosyaya yazın:
+   GEMINI_API_KEY="AIzaSy..."
+
+----------------------------------------------------------------
+5. TAM BİR MASAÜSTÜ UYGULAMASI (.EXE GİBİ) YAPMAK İÇİN
+----------------------------------------------------------------
+Uygulama tarayıcınızda (Chrome veya Microsoft Edge) açıkken:
+- Sağ üstteki üç noktaya (...) tıklayın.
+- "Uygulamalar" (Apps) -> "Bu siteyi uygulama olarak yükle" seçeneğine tıklayın.
+Böylece J.A.R.V.I.S. tıpkı bağımsız bir Windows programı (.exe) gibi kendi 
+penceresinde açılacak ve masaüstünüze kısayol eklenecektir!
