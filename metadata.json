@@ -2,7 +2,8 @@
   "name": "J.A.R.V.I.S. Windows OS Assistant",
   "description": "Iron Man Tony Stark tarzı J.A.R.V.I.S. Windows asistanı: Akıllı ev kontrolü, yerel dosya gezgini ve yüksek hızlı veri aktarımı.",
   "requestFramePermissions": [
-    "microphone"
+    "microphone",
+    "geolocation"
   ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

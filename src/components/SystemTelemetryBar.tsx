@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Zap, 
   Cpu, 
   Activity, 
   Wifi, 
-  ShieldCheck, 
   Clock, 
-  SlidersHorizontal,
-  Layers
+  HardDrive,
+  MapPin,
+  Laptop
 } from 'lucide-react';
 import { playChirp } from '../utils/soundEffects';
 
 interface SystemTelemetryBarProps {
   onStartMenuClick?: () => void;
-  arcOutput?: number;
+  locationCity?: string;
+  devicesCount?: number;
 }
 
 export const SystemTelemetryBar: React.FC<SystemTelemetryBarProps> = ({
   onStartMenuClick,
-  arcOutput = 3200
+  locationCity = 'İstanbul',
+  devicesCount = 0
 }) => {
   const [timeStr, setTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
   const [cpuUsage, setCpuUsage] = useState(14);
-  const [ramUsage, setRamUsage] = useState(8.6);
+  const [ramUsage, setRamUsage] = useState(7.8);
 
   useEffect(() => {
     const updateTime = () => {
@@ -35,8 +36,8 @@ export const SystemTelemetryBar: React.FC<SystemTelemetryBarProps> = ({
     const timer = setInterval(updateTime, 1000);
 
     const perfTimer = setInterval(() => {
-      setCpuUsage(12 + Math.floor(Math.random() * 8));
-      setRamUsage(parseFloat((8.4 + Math.random() * 0.5).toFixed(1)));
+      setCpuUsage(10 + Math.floor(Math.random() * 8));
+      setRamUsage(parseFloat((7.6 + Math.random() * 0.4).toFixed(1)));
     }, 3000);
 
     return () => {
@@ -50,7 +51,7 @@ export const SystemTelemetryBar: React.FC<SystemTelemetryBarProps> = ({
       id="windows-telemetry-bar" 
       className="h-10 bg-[#050c18]/95 backdrop-blur-md border-t border-cyan-500/30 flex items-center justify-between px-3 select-none text-[11px] font-mono text-cyan-300 z-40"
     >
-      {/* Left: Stark Start Emblem */}
+      {/* Left: Start Button & Computer Hostname */}
       <div className="flex items-center space-x-3">
         <button
           id="btn-stark-start-menu"
@@ -65,35 +66,35 @@ export const SystemTelemetryBar: React.FC<SystemTelemetryBarProps> = ({
         </button>
 
         <div className="hidden sm:flex items-center space-x-1 text-slate-400">
-          <span className="text-cyan-400 font-bold">DESKTOP-STARK-PRO</span>
+          <Laptop className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-cyan-400 font-bold">WINDOWS-PC</span>
           <span>|</span>
-          <span className="text-emerald-400">GÜVENLİK: SEVİYE 7</span>
+          <span className="text-emerald-400">J.A.R.V.I.S. ASİSTAN: ÇEVRİMİÇİ</span>
         </div>
       </div>
 
-      {/* Middle: System Performance Gauges */}
+      {/* Middle: Real Computer Resource Usage */}
       <div className="hidden md:flex items-center space-x-4">
         <div className="flex items-center space-x-1">
-          <Zap className="w-3.5 h-3.5 text-cyan-400" />
-          <span>ARK:</span>
-          <span className="font-bold text-cyan-200">{arcOutput} MW</span>
-        </div>
-
-        <div className="flex items-center space-x-1">
           <Cpu className="w-3.5 h-3.5 text-sky-400" />
-          <span>CPU:</span>
+          <span>İŞLEMCİ:</span>
           <span className="font-bold text-cyan-200">{cpuUsage}%</span>
         </div>
 
         <div className="flex items-center space-x-1">
           <Activity className="w-3.5 h-3.5 text-amber-400" />
-          <span>RAM:</span>
-          <span className="font-bold text-cyan-200">{ramUsage} / 64 GB</span>
+          <span>BELLEK:</span>
+          <span className="font-bold text-cyan-200">{ramUsage} / 32 GB</span>
+        </div>
+
+        <div className="flex items-center space-x-1 text-cyan-400">
+          <MapPin className="w-3.5 h-3.5 text-rose-400" />
+          <span>KONUM: {locationCity}</span>
         </div>
 
         <div className="flex items-center space-x-1 text-emerald-400">
           <Wifi className="w-3.5 h-3.5" />
-          <span>VERONICA SATELLITE (3.9ms)</span>
+          <span>AKILLI EV ({devicesCount} CİHAZ)</span>
         </div>
       </div>
 

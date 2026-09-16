@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Minus, 
   Square, 
@@ -7,14 +7,11 @@ import {
   Volume2, 
   VolumeX, 
   Mic, 
-  Cpu, 
-  ShieldCheck, 
-  Radio, 
   FolderKanban,
   Home,
-  Send,
   Sparkles,
-  Layers
+  Radio,
+  MapPin
 } from 'lucide-react';
 import { SystemView } from '../types';
 import { playChirp } from '../utils/soundEffects';
@@ -29,6 +26,8 @@ interface WindowsTitleBarProps {
   isCompact: boolean;
   onToggleCompact: () => void;
   onClose: () => void;
+  devicesCount: number;
+  locationCity?: string;
 }
 
 export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
@@ -41,6 +40,8 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
   isCompact,
   onToggleCompact,
   onClose,
+  devicesCount,
+  locationCity
 }) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
@@ -58,10 +59,15 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
   };
 
   const navItems: { id: SystemView; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: 'hud', label: 'J.A.R.V.I.S. HUD', icon: <Sparkles className="w-4 h-4 text-cyan-400" /> },
-    { id: 'smarthome', label: 'Akıllı Ev', icon: <Home className="w-4 h-4 text-emerald-400" />, badge: '12 Cihaz' },
+    { id: 'hud', label: 'J.A.R.V.I.S. Asistan', icon: <Sparkles className="w-4 h-4 text-cyan-400" /> },
+    { 
+      id: 'smarthome', 
+      label: 'Akıllı Ev', 
+      icon: <Home className="w-4 h-4 text-emerald-400" />, 
+      badge: `${devicesCount} Cihaz` 
+    },
     { id: 'files', label: 'Dosya Gezgini', icon: <FolderKanban className="w-4 h-4 text-amber-400" />, badge: 'C: D: Z:' },
-    { id: 'transfer', label: 'Veri Aktarımı', icon: <Radio className="w-4 h-4 text-sky-400" />, badge: '1.4 GB/s' }
+    { id: 'transfer', label: 'Veri Aktarımı', icon: <Radio className="w-4 h-4 text-sky-400" /> }
   ];
 
   return (
@@ -69,7 +75,7 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
       id="windows-title-bar" 
       className="h-12 bg-[#060e1c]/95 backdrop-blur-md border-b border-cyan-500/30 flex items-center justify-between px-3 select-none z-50 text-xs font-mono text-cyan-200"
     >
-      {/* Left: Stark Brand & App Logo */}
+      {/* Left: Assistant Logo & Window Branding */}
       <div className="flex items-center space-x-3">
         <div className="relative flex items-center justify-center w-7 h-7 rounded-full bg-cyan-950/80 border border-cyan-400/60 shadow-[0_0_12px_rgba(0,229,255,0.4)]">
           <div className="w-2.5 h-2.5 rounded-full bg-cyan-300 animate-ping opacity-60 absolute" />
@@ -77,18 +83,17 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
         </div>
         <div className="flex flex-col">
           <div className="flex items-center space-x-1.5 font-bold tracking-wider text-cyan-300 font-['Orbitron']">
-            <span>STARK OS</span>
-            <span className="text-[10px] text-cyan-400/70 font-sans font-normal">v7.4</span>
-            <span className="text-gray-500 font-normal">|</span>
-            <span className="text-white">J.A.R.V.I.S.</span>
+            <span>J.A.R.V.I.S.</span>
+            <span className="text-[10px] text-cyan-400/70 font-sans font-normal">Windows Workstation</span>
           </div>
-          <div className="text-[9px] text-cyan-400/60 tracking-tight">
-            Windows 11 Workstation Edition
+          <div className="text-[9px] text-cyan-400/60 tracking-tight flex items-center space-x-1">
+            <MapPin className="w-2.5 h-2.5 text-cyan-400" />
+            <span>{locationCity || 'Konum Tespiti Yapılıyor'}</span>
           </div>
         </div>
       </div>
 
-      {/* Middle: Main Navigation Bar */}
+      {/* Middle: Main Navigation Tabs */}
       <nav id="jarvis-navigation-tabs" className="flex items-center space-x-1 bg-[#09152b]/80 p-1 rounded-lg border border-cyan-500/20">
         {navItems.map((item) => {
           const active = currentView === item.id;
@@ -118,18 +123,8 @@ export const WindowsTitleBar: React.FC<WindowsTitleBarProps> = ({
         })}
       </nav>
 
-      {/* Right: Quick Controls & Windows Standard Buttons */}
+      {/* Right: Sound / Voice Toggles & Window System Buttons */}
       <div className="flex items-center space-x-2">
-        {/* Telemetry quick indicators */}
-        <div className="hidden lg:flex items-center space-x-2 px-2 py-1 bg-cyan-950/40 rounded border border-cyan-500/20 text-[10px]">
-          <span className="flex items-center text-emerald-400 space-x-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>AI CORE: AKTİF</span>
-          </span>
-          <span className="text-cyan-600">|</span>
-          <span className="text-cyan-400">ARK: 100%</span>
-        </div>
-
         {/* Audio FX Toggle */}
         <button
           id="btn-sound-toggle"

@@ -13,7 +13,7 @@ import {
   INITIAL_TRANSFERS 
 } from './data/mockSystem';
 import { WindowsTitleBar } from './components/WindowsTitleBar';
-import { ArcReactorHUD } from './components/ArcReactorHUD';
+import { NeuralCoreHUD, LocationWeatherState } from './components/NeuralCoreHUD';
 import { JarvisConsole } from './components/JarvisConsole';
 import { SmartHomeView } from './components/SmartHomeView';
 import { FileExplorerView } from './components/FileExplorerView';
@@ -31,14 +31,14 @@ import {
   stopSpeaking 
 } from './utils/speech';
 import { 
-  Zap, 
-  ShieldAlert, 
-  ShieldCheck, 
-  RotateCcw, 
   Maximize, 
-  Radio, 
   Sparkles,
-  Bot
+  Bot,
+  Home,
+  FolderKanban,
+  Radio,
+  MapPin,
+  RefreshCw
 } from 'lucide-react';
 
 export default function App() {
@@ -56,17 +56,117 @@ export default function App() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [showStartMenu, setShowStartMenu] = useState(false);
 
-  // Initial welcome message from J.A.R.V.I.S.
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'msg_init',
-      sender: 'jarvis',
-      text: 'İyi günler Sayın Stark. J.A.R.V.I.S. Mark VII sistemleri Windows iş istasyonunuzda tam kapasiteyle devrede. Evinizdeki 12 akıllı ürün, yerel diskleriniz (C:, D:, Z:) ve kuantum veri aktarım hatları emrinizdedir. Size nasıl yardımcı olabilirim efendim?',
-      timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
+  // Active Location & Weather State
+  const [locationWeather, setLocationWeather] = useState<LocationWeatherState>({
+    city: 'İstanbul',
+    country: 'Türkiye',
+    latitude: null,
+    longitude: null,
+    tempC: 21,
+    condition: 'Açık & Güneşli',
+    humidity: 58,
+    windSpeed: 14,
+    loading: false
+  });
 
-  // Sync speech status with Arc Reactor visualizer
+  // Fetch real user location via browser Geolocation & Reverse Geocoding
+  const fetchActiveLocationAndWeather = useCallback(() => {
+    setLocationWeather((prev) => ({ ...prev, loading: true }));
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          try {
+            // Free Open-Meteo API for real weather & location data without API key!
+            const weatherRes = await fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m`
+            );
+            const weatherData = await weatherRes.json();
+            const currentTemp = Math.round(weatherData.current_weather?.temperature ?? 21);
+            const wind = Math.round(weatherData.current_weather?.windspeed ?? 12);
+            const code = weatherData.current_weather?.weathercode ?? 0;
+
+            let conditionDesc = 'Açık';
+            if (code >= 1 && code <= 3) conditionDesc = 'Parçalı Bulutlu';
+            else if (code >= 51 && code <= 67) conditionDesc = 'Yağmurlu';
+            else if (code >= 71 && code <= 77) conditionDesc = 'Karlı';
+            else if (code >= 95) conditionDesc = 'Fırtınalı';
+
+            // Reverse Geocoding via openstreetmap nominatim
+            let detectedCity = 'Aktif Konumunuz';
+            let detectedCountry = 'Türkiye';
+            try {
+              const geoRes = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+              );
+              const geoData = await geoRes.json();
+              detectedCity = geoData.address?.city || geoData.address?.town || geoData.address?.province || 'Konumunuz';
+              detectedCountry = geoData.address?.country || 'Türkiye';
+            } catch {
+              // Fallback
+            }
+
+            setLocationWeather({
+              city: detectedCity,
+              country: detectedCountry,
+              latitude: lat,
+              longitude: lon,
+              tempC: currentTemp,
+              condition: conditionDesc,
+              humidity: 62,
+              windSpeed: wind,
+              loading: false
+            });
+          } catch (err) {
+            console.warn('Weather API failed, fallback active:', err);
+            setLocationWeather((prev) => ({ ...prev, loading: false }));
+          }
+        },
+        (err) => {
+          console.warn('Geolocation permission or error:', err.message);
+          setLocationWeather((prev) => ({
+            ...prev,
+            loading: false,
+            city: 'İstanbul',
+            country: 'Türkiye'
+          }));
+        },
+        { timeout: 8000 }
+      );
+    } else {
+      setLocationWeather((prev) => ({ ...prev, loading: false }));
+    }
+  }, []);
+
+  // Initial welcome message from J.A.R.V.I.S. (Personalized with active location)
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  useEffect(() => {
+    fetchActiveLocationAndWeather();
+  }, [fetchActiveLocationAndWeather]);
+
+  // Once location is fetched, greet the user with actual context
+  useEffect(() => {
+    const timeGreeting = new Date().getHours() < 12 ? 'Günaydın' : new Date().getHours() < 18 ? 'İyi günler' : 'İyi akşamlar';
+    const welcomeText = `${timeGreeting} efendim. J.A.R.V.I.S. Windows iş istasyonunuzda hazır ve nazır. 
+
+Aktif konumunuz ${locationWeather.city} (${locationWeather.tempC}°C, ${locationWeather.condition}). Ev otomasyonu için cihaz listeniz sıfırlandı; dilediğiniz akıllı lambaları, klimaları ve cihazları "Akıllı Ev" sekmesinden veya sesli olarak ekleyebilirsiniz. Yerel diskleriniz (C:, D:, Z:) ve güvenli veri aktarım kanalları emrinizdedir.
+
+Nasıl yardımcı olabilirim?`;
+
+    setMessages([
+      {
+        id: 'msg_init',
+        sender: 'jarvis',
+        text: welcomeText,
+        timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+  }, [locationWeather.city]);
+
+  // Sync speech status with visualizer
   useEffect(() => {
     registerSpeechStatusListener((speaking) => {
       setIsSpeaking(speaking);
@@ -104,7 +204,7 @@ export default function App() {
       } else if (action.target === 'security') {
         setSmartDevices((prev) =>
           prev.map((d) =>
-            d.type === 'lock' || d.type === 'defense' ? { ...d, state: Boolean(action.value) } : d
+            d.type === 'lock' ? { ...d, state: Boolean(action.value) } : d
           )
         );
       }
@@ -112,18 +212,18 @@ export default function App() {
     } else if (action.type === 'DATA_TRANSFER') {
       const newJob: TransferJob = {
         id: `TX-${Math.floor(1000 + Math.random() * 9000)}`,
-        filename: String(action.value || 'Stark_Quantum_Payload.enc'),
-        size: '340.5 MB',
-        sizeBytes: 357040128,
+        filename: String(action.value || 'Guvenli_Veri_Paketi.zip'),
+        size: '180.4 MB',
+        sizeBytes: 189163520,
         source: 'Yerel Bilgisayar (C:\\)',
-        destination: 'Stark Orbital Veronica Uydusu',
-        protocol: 'Stark Quantum Tunnel',
+        destination: 'Güvenli Bulut Depolama',
+        protocol: 'Direct Fiber Link',
         progress: 10,
-        speed: '1.42 GB/s',
+        speed: '1.20 GB/s',
         status: 'TRANSFERRING',
-        cipher: 'STARK-SHA-512',
+        cipher: 'AES-256-GCM',
         startedAt: new Date().toLocaleTimeString(),
-        eta: '6.4 sn'
+        eta: '5.4 sn'
       };
       setTransfers((prev) => [newJob, ...prev]);
       playCommandSuccess();
@@ -150,8 +250,10 @@ export default function App() {
         body: JSON.stringify({
           message: text,
           context: {
+            userLocation: `${locationWeather.city}, ${locationWeather.country}`,
+            weather: `${locationWeather.tempC}°C, ${locationWeather.condition}`,
             devicesCount: smartDevices.length,
-            onlineLights: smartDevices.filter((d) => d.type === 'light' && d.state).length,
+            devices: smartDevices.map(d => ({ name: d.name, room: d.room, type: d.type, state: d.state, value: d.value })),
             transfersActive: transfers.filter((t) => t.status === 'TRANSFERRING').length
           }
         })
@@ -204,31 +306,37 @@ export default function App() {
 
   const handleAddSmartDevice = (newDev: SmartDevice) => {
     setSmartDevices((prev) => [newDev, ...prev]);
+    if (voiceEnabledState) {
+      speakText(`${newDev.name} başarıyla sisteme bağlandı efendim.`);
+    }
+  };
+
+  const handleDeleteSmartDevice = (deviceId: string) => {
+    setSmartDevices((prev) => prev.filter((d) => d.id !== deviceId));
   };
 
   const handleApplyScene = (sceneName: string) => {
     if (sceneName === 'lab_focus') {
       setSmartDevices((prev) =>
         prev.map((d) => {
-          if (d.room === 'lab') return { ...d, state: true, value: 100 };
-          if (d.type === 'light' && d.room !== 'lab') return { ...d, state: false };
+          if (d.type === 'light') return { ...d, state: true, value: 100 };
           return d;
         })
       );
       if (voiceEnabledState) {
-        speakText('Atölye odak modu aktif efendim. Hologram projektörleri ve nanotek havalandırma maksimum güçte.');
+        speakText('Çalışma modu aktif edildi efendim.');
       }
     } else if (sceneName === 'night_stealth') {
       setSmartDevices((prev) =>
         prev.map((d) => {
           if (d.type === 'light') return { ...d, state: false };
-          if (d.type === 'lock' || d.type === 'defense') return { ...d, state: true };
+          if (d.type === 'lock') return { ...d, state: true };
           if (d.type === 'thermostat') return { ...d, value: 20 };
           return d;
         })
       );
       if (voiceEnabledState) {
-        speakText('Gece gizlilik ve güvenlik protokolü devreye alındı. Dronlar devriyede efendim.');
+        speakText('Gece modu devreye alındı efendim.');
       }
     }
   };
@@ -264,14 +372,14 @@ export default function App() {
       size: file.size,
       sizeBytes: file.sizeBytes,
       source: `Yerel Dosya (${file.path})`,
-      destination: 'Stark Orbital Veronica Uydusu',
-      protocol: 'Stark Quantum Tunnel',
+      destination: 'Güvenli Bulut Depolama',
+      protocol: 'Direct Fiber Link',
       progress: 0,
-      speed: '1.42 GB/s',
+      speed: '1.20 GB/s',
       status: 'TRANSFERRING',
-      cipher: 'STARK-SHA-512',
+      cipher: 'AES-256-GCM',
       startedAt: new Date().toLocaleTimeString(),
-      eta: '5.2 sn'
+      eta: '4.8 sn'
     };
     setTransfers((prev) => [job, ...prev]);
     setCurrentView('transfer');
@@ -283,7 +391,7 @@ export default function App() {
 
   const handleJarvisAnalyzeFile = (file: FileItem) => {
     setCurrentView('hud');
-    const prompt = `Lütfen şu dosyanın içeriğini ve sistem güvenliğini analiz et: "${file.name}" (Yol: ${file.path}, Boyut: ${file.size}).\nİçerik özeti:\n${file.content?.slice(0, 300) || 'İkili veri'}`;
+    const prompt = `Lütfen şu dosyanın içeriğini ve özetini değerlendir: "${file.name}" (Yol: ${file.path}, Boyut: ${file.size}).\nİçerik özeti:\n${file.content?.slice(0, 300) || 'İkili veri'}`;
     handleSendMessage(prompt);
   };
 
@@ -296,27 +404,26 @@ export default function App() {
     setTransfers((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   };
 
-  // Clean Slate emergency dump
   const handleEmergencyDataDump = () => {
     const emergencyJob: TransferJob = {
-      id: `TX-EMERGENCY-${Date.now()}`,
-      filename: 'CLEAN_SLATE_FULL_ENCRYPTED_BACKUP.tar.enc',
-      size: '2.84 GB',
-      sizeBytes: 3049426124,
-      source: 'Tüm Yerel Sistemler (C: & D: & Sensörler)',
-      destination: 'Veronica Derin Uzay Uydusu (Yedek)',
-      protocol: 'Stark Quantum Tunnel',
+      id: `TX-BACKUP-${Date.now()}`,
+      filename: 'TAM_SISTEM_YEDEKLEME_ARŞİVİ.tar.gz',
+      size: '1.45 GB',
+      sizeBytes: 1556925644,
+      source: 'Yerel Diskler (C: & D:)',
+      destination: 'Güvenli Bulut Sunucusu (Şifreli)',
+      protocol: 'Encrypted VPN',
       progress: 5,
-      speed: '2.10 GB/s',
+      speed: '1.40 GB/s',
       status: 'TRANSFERRING',
-      cipher: 'STARK-SHA-512',
+      cipher: 'AES-256-GCM',
       startedAt: new Date().toLocaleTimeString(),
-      eta: '4.8 sn'
+      eta: '4.2 sn'
     };
     setTransfers((prev) => [emergencyJob, ...prev]);
     setCurrentView('transfer');
     if (voiceEnabledState) {
-      speakText('Acil durum Clean Slate veri tahliyesi başlatıldı efendim. Tüm Mark zırh planları şifrelenerek yörüngeye aktarılıyor.');
+      speakText('Sistem ve dosya yedekleme işlemi başlatıldı efendim.');
     }
   };
 
@@ -335,6 +442,8 @@ export default function App() {
         onToggleVoice={handleToggleVoice}
         isCompact={isCompact}
         onToggleCompact={() => setIsCompact(!isCompact)}
+        devicesCount={smartDevices.length}
+        locationCity={locationWeather.city}
         onClose={() => {
           if (confirm('J.A.R.V.I.S. Windows oturumunu kapatmak istediğinizden emin misiniz?')) {
             window.location.reload();
@@ -345,22 +454,19 @@ export default function App() {
       {/* Main App Workspace */}
       <main id="windows-workspace-container" className="flex-1 overflow-hidden relative flex flex-col">
         {isCompact ? (
-          /* Mini Floating HUD Widget Mode */
+          /* Mini Floating Assistant Widget Mode */
           <div className="flex-1 flex flex-col items-center justify-center p-6">
             <div className="bg-[#051329]/95 backdrop-blur-lg p-6 rounded-2xl border-2 border-cyan-400/60 shadow-[0_0_40px_rgba(0,210,255,0.3)] flex flex-col items-center max-w-sm text-center">
-              <ArcReactorHUD
+              <NeuralCoreHUD
                 isSpeaking={isSpeaking}
                 isListening={isListening}
+                locationWeather={locationWeather}
+                onRefreshLocation={fetchActiveLocationAndWeather}
+                devicesCount={smartDevices.length}
                 onPulseCore={() => {
-                  if (voiceEnabledState) speakText('Sistemler nominal efendim.');
+                  if (voiceEnabledState) speakText('Sistemler hazır efendim.');
                 }}
               />
-              <h2 className="text-sm font-bold font-['Orbitron'] text-cyan-200 mt-2">
-                J.A.R.V.I.S. MİNİ WİDGET
-              </h2>
-              <p className="text-xs text-cyan-400/70 font-mono mt-1">
-                Tüm alt sistemler arka planda izleniyor.
-              </p>
               <button
                 onClick={() => setIsCompact(false)}
                 className="mt-4 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-['Orbitron'] flex items-center space-x-2 cursor-pointer shadow-[0_0_12px_rgba(0,229,255,0.4)]"
@@ -371,30 +477,33 @@ export default function App() {
             </div>
           </div>
         ) : (
-          /* Standard Full Windows Application Layout */
+          /* Standard Windows Application Layout */
           <div className="flex-1 overflow-hidden">
             {currentView === 'hud' && (
               <div className="h-full grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 overflow-hidden">
-                {/* Left / Center: Holographic Arc Reactor & System Diagnostics */}
+                {/* Left: Neural Core HUD with Active Location & Environment */}
                 <div className="lg:col-span-5 flex flex-col justify-between bg-[#051022]/80 backdrop-blur-md rounded-xl border border-cyan-500/30 p-4 shadow-[0_0_20px_rgba(0,180,255,0.1)] overflow-y-auto">
                   <div className="flex items-center justify-between pb-2 border-b border-cyan-500/20">
                     <div className="flex items-center space-x-2">
-                      <Zap className="w-4 h-4 text-cyan-400" />
+                      <Sparkles className="w-4 h-4 text-cyan-400" />
                       <span className="font-['Orbitron'] text-xs font-bold text-cyan-200 tracking-wider">
-                        ARK REAKTÖRÜ MERKEZİ
+                        J.A.R.V.I.S. ASİSTAN MERKEZİ
                       </span>
                     </div>
-                    <span className="text-[10px] text-emerald-400 font-mono">100% GÜVENLİ</span>
+                    <span className="text-[10px] text-emerald-400 font-mono">ÇEVRİMİÇİ</span>
                   </div>
 
-                  {/* Arc Reactor Centerpiece */}
-                  <ArcReactorHUD
+                  {/* Neural Core Centerpiece with Location & Waveforms */}
+                  <NeuralCoreHUD
                     isSpeaking={isSpeaking}
                     isListening={isListening}
+                    locationWeather={locationWeather}
+                    onRefreshLocation={fetchActiveLocationAndWeather}
+                    devicesCount={smartDevices.length}
                     onPulseCore={() => {
                       playCommandSuccess();
                       if (voiceEnabledState) {
-                        speakText('Ark Reaktörü çekirdeği taze element sentezi ile yüzde yüz kapasitede çalışıyor efendim.');
+                        speakText(`Sistemler devrede efendim. Şu an ${locationWeather.city} konumundasınız, sıcaklık ${locationWeather.tempC} derece.`);
                       }
                     }}
                   />
@@ -406,7 +515,7 @@ export default function App() {
                       className="p-2.5 rounded-lg bg-[#071936] hover:bg-cyan-500/20 border border-cyan-500/30 text-center transition-all cursor-pointer"
                     >
                       <div className="text-[10px] text-cyan-400/70">AKILLI EV</div>
-                      <div className="font-bold text-cyan-200 mt-0.5">12 Cihaz</div>
+                      <div className="font-bold text-cyan-200 mt-0.5">{smartDevices.length} Cihaz</div>
                     </button>
                     <button
                       onClick={() => setCurrentView('files')}
@@ -420,7 +529,7 @@ export default function App() {
                       className="p-2.5 rounded-lg bg-[#071936] hover:bg-sky-500/20 border border-cyan-500/30 text-center transition-all cursor-pointer"
                     >
                       <div className="text-[10px] text-sky-400/70">AKTARIM</div>
-                      <div className="font-bold text-sky-200 mt-0.5">1.4 GB/s</div>
+                      <div className="font-bold text-sky-200 mt-0.5">{transfers.length} Görev</div>
                     </button>
                   </div>
                 </div>
@@ -445,6 +554,7 @@ export default function App() {
                 devices={smartDevices}
                 onUpdateDevice={handleUpdateSmartDevice}
                 onAddDevice={handleAddSmartDevice}
+                onDeleteDevice={handleDeleteSmartDevice}
                 onApplyScene={handleApplyScene}
               />
             )}
@@ -470,7 +580,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Stark Start Menu Popup */}
+        {/* Windows Start Menu Popup */}
         {showStartMenu && (
           <div className="absolute bottom-12 left-3 w-80 bg-[#06142a]/95 backdrop-blur-xl border border-cyan-400/50 rounded-xl p-4 shadow-[0_0_30px_rgba(0,210,255,0.25)] z-50 text-xs font-mono">
             <div className="flex items-center space-x-3 pb-3 border-b border-cyan-500/30">
@@ -478,8 +588,8 @@ export default function App() {
                 <Bot className="w-5 h-5 text-cyan-300" />
               </div>
               <div>
-                <div className="font-bold text-cyan-200 font-['Orbitron']">TONY STARK</div>
-                <div className="text-[10px] text-cyan-400/70">Baş Mühendis & İcra Kurulu Başkanı</div>
+                <div className="font-bold text-cyan-200 font-['Orbitron']">KULLANICI ÇALIŞMA ALANI</div>
+                <div className="text-[10px] text-cyan-400/70">J.A.R.V.I.S. Windows Asistanı</div>
               </div>
             </div>
 
@@ -491,8 +601,8 @@ export default function App() {
                 }}
                 className="w-full text-left px-2.5 py-1.5 rounded hover:bg-cyan-500/20 text-cyan-200 flex items-center space-x-2 cursor-pointer"
               >
-                <span>💠</span>
-                <span>J.A.R.V.I.S. Ana Kontrol Ekranı</span>
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <span>J.A.R.V.I.S. Asistan Paneli</span>
               </button>
               <button
                 onClick={() => {
@@ -501,8 +611,8 @@ export default function App() {
                 }}
                 className="w-full text-left px-2.5 py-1.5 rounded hover:bg-cyan-500/20 text-cyan-200 flex items-center space-x-2 cursor-pointer"
               >
-                <span>🏠</span>
-                <span>Malibu Akıllı Ev Otomasyonu</span>
+                <Home className="w-4 h-4 text-emerald-400" />
+                <span>Akıllı Ev Cihaz Kontrolü</span>
               </button>
               <button
                 onClick={() => {
@@ -511,8 +621,8 @@ export default function App() {
                 }}
                 className="w-full text-left px-2.5 py-1.5 rounded hover:bg-cyan-500/20 text-cyan-200 flex items-center space-x-2 cursor-pointer"
               >
-                <span>📁</span>
-                <span>Windows & Stark Dosya Gezgini</span>
+                <FolderKanban className="w-4 h-4 text-amber-400" />
+                <span>Windows Dosya Gezgini</span>
               </button>
               <button
                 onClick={() => {
@@ -521,13 +631,16 @@ export default function App() {
                 }}
                 className="w-full text-left px-2.5 py-1.5 rounded hover:bg-cyan-500/20 text-cyan-200 flex items-center space-x-2 cursor-pointer"
               >
-                <span>⚡</span>
-                <span>Kuantum Veri Aktarımı Hub</span>
+                <Radio className="w-4 h-4 text-sky-400" />
+                <span>Veri Aktarımı & Senkronizasyon</span>
               </button>
             </div>
 
-            <div className="pt-2 border-t border-cyan-500/30 flex justify-between text-[10px] text-slate-400">
-              <span>Windows 11 Stark OS</span>
+            <div className="pt-2 border-t border-cyan-500/30 flex justify-between items-center text-[10px] text-slate-400">
+              <span className="flex items-center space-x-1">
+                <MapPin className="w-3 h-3 text-cyan-400" />
+                <span>{locationWeather.city}</span>
+              </span>
               <button
                 onClick={() => setShowStartMenu(false)}
                 className="text-cyan-400 hover:text-cyan-200 cursor-pointer"
@@ -539,10 +652,11 @@ export default function App() {
         )}
       </main>
 
-      {/* Windows Bottom Telemetry & Taskbar */}
+      {/* Windows Bottom Telemetry Bar */}
       <SystemTelemetryBar
         onStartMenuClick={() => setShowStartMenu(!showStartMenu)}
-        arcOutput={3200}
+        locationCity={locationWeather.city}
+        devicesCount={smartDevices.length}
       />
     </div>
   );

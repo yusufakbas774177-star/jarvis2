@@ -12,17 +12,12 @@ import {
   Trash2, 
   Plus, 
   Eye, 
-  ShieldCheck, 
   Sparkles, 
   Radio, 
   X, 
-  Copy, 
-  FolderPlus,
-  FilePlus,
-  RefreshCw,
   FolderOpen
 } from 'lucide-react';
-import { FileItem, SystemView } from '../types';
+import { FileItem } from '../types';
 import { playChirp, playCommandSuccess, playAlert } from '../utils/soundEffects';
 
 interface FileExplorerViewProps {
@@ -54,10 +49,10 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
   const hiddenFileInputRef = useRef<HTMLInputElement>(null);
 
   const drives = [
-    { id: 'C:', name: 'Yerel Disk (C:)', desc: 'Windows 11 OS & Kullanıcılar', icon: <HardDrive className="w-4 h-4 text-cyan-400" /> },
-    { id: 'D:', name: 'Stark Vault (D:)', desc: 'Mark Zırhları & Gizli Planlar', icon: <HardDrive className="w-4 h-4 text-amber-400" /> },
-    { id: 'Z:', name: 'Orbital Uydu (Z:)', desc: 'StarkNet Küresel Ağ Paylaşımı', icon: <HardDrive className="w-4 h-4 text-emerald-400" /> },
-    { id: 'LOCAL:', name: localDirName ? `Yerel: ${localDirName}` : 'Gerçek Klasör Aç...', desc: 'Bilgisayarınızdan bir klasör seçin', icon: <FolderOpen className="w-4 h-4 text-sky-400" /> }
+    { id: 'C:', name: 'Yerel Disk (C:)', desc: 'Windows İşletim Sistemi & Belgeler', icon: <HardDrive className="w-4 h-4 text-cyan-400" /> },
+    { id: 'D:', name: 'Veri Deposu (D:)', desc: 'Kullanıcı Verileri & Arşiv', icon: <HardDrive className="w-4 h-4 text-amber-400" /> },
+    { id: 'Z:', name: 'Güvenli Ağ (Z:)', desc: 'Bulut Yedekleme & Ağ Paylaşımı', icon: <HardDrive className="w-4 h-4 text-emerald-400" /> },
+    { id: 'LOCAL:', name: localDirName ? `Yerel: ${localDirName}` : 'Bilgisayardan Klasör Aç...', desc: 'Bilgisayarınızdan gerçek bir klasör seçin', icon: <FolderOpen className="w-4 h-4 text-sky-400" /> }
   ];
 
   // Native Web File System Access API support: Open Real Computer Folder!
@@ -79,7 +74,7 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
               try {
                 contentText = await fileData.text();
               } catch (e) {
-                contentText = '[Binary / Media Data]';
+                contentText = '[İkili / Medya Verisi]';
               }
             }
             loadedItems.push({
@@ -167,10 +162,10 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
     }
   };
 
-  // Real File Download Handler (Saves to user's computer disk!)
+  // Real File Download Handler (Saves to user's computer disk)
   const handleDownloadFile = (file: FileItem) => {
     playCommandSuccess();
-    const blob = new Blob([file.content || `STARK ENCRYPTED FILE: ${file.name}\nSize: ${file.size}`], { 
+    const blob = new Blob([file.content || `DOSYA: ${file.name}\nBoyut: ${file.size}`], { 
       type: 'text/plain;charset=utf-8' 
     });
     const url = URL.createObjectURL(blob);
@@ -252,7 +247,7 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
       size: newFileType === 'folder' ? '<KLASÖR>' : `${(newFileContent.length / 1024).toFixed(1)} KB`,
       sizeBytes: newFileContent.length,
       modified: new Date().toISOString().slice(0, 16).replace('T', ' '),
-      securityClearance: 'Level 4',
+      securityClearance: 'Level 1',
       content: newFileContent,
       children: newFileType === 'folder' ? [] : undefined
     };
@@ -320,7 +315,7 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
             className="px-3 py-1.5 rounded-lg bg-sky-600/30 hover:bg-sky-500/40 text-sky-200 border border-sky-400/50 text-xs font-mono flex items-center space-x-1.5 cursor-pointer shadow-[0_0_10px_rgba(56,189,248,0.2)]"
           >
             <FolderOpen className="w-3.5 h-3.5 text-sky-300" />
-            <span>Gerçek Klasör Seç</span>
+            <span>Bilgisayardan Klasör Aç</span>
           </button>
 
           <button
@@ -413,11 +408,11 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
                     <div className="p-2 rounded bg-cyan-950/70 border border-cyan-500/30 shrink-0">
                       {isFolder ? (
                         <Folder className="w-6 h-6 text-amber-400 fill-amber-400/20" />
-                      ) : item.extension === 'cad' ? (
+                      ) : item.extension === 'json' || item.extension === 'cfg' ? (
                         <FileCode className="w-6 h-6 text-rose-400" />
-                      ) : item.extension === 'py' || item.extension === 'cpp' ? (
+                      ) : item.extension === 'py' || item.extension === 'js' || item.extension === 'ts' ? (
                         <FileCode className="w-6 h-6 text-emerald-400" />
-                      ) : item.extension === 'csv' ? (
+                      ) : item.extension === 'csv' || item.extension === 'xlsx' ? (
                         <FileSpreadsheet className="w-6 h-6 text-sky-400" />
                       ) : (
                         <FileText className="w-6 h-6 text-cyan-300" />
@@ -431,11 +426,6 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
                       <div className="text-[10px] text-cyan-400/60 font-mono mt-0.5">
                         {item.size} • {item.modified}
                       </div>
-                      {item.securityClearance && (
-                        <span className="inline-block text-[9px] px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-500/20 mt-1">
-                          {item.securityClearance}
-                        </span>
-                      )}
                     </div>
                   </div>
 
@@ -470,7 +460,7 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
                             playCommandSuccess();
                             onSendToTransfer(item);
                           }}
-                          title="Kuantum Veri Aktarımına Gönder"
+                          title="Veri Aktarım Kuyruğuna Gönder"
                           className="p-1 rounded hover:bg-cyan-500/20 hover:text-cyan-200 cursor-pointer"
                         >
                           <Radio className="w-3.5 h-3.5 text-sky-400" />
@@ -631,7 +621,7 @@ export const FileExplorerView: React.FC<FileExplorerViewProps> = ({
                   required
                   value={newFileName}
                   onChange={(e) => setNewFileName(e.target.value)}
-                  placeholder={newFileType === 'file' ? 'stark_telemetry.log' : 'Yeni_Klasor'}
+                  placeholder={newFileType === 'file' ? 'calisma_notu.txt' : 'Yeni_Klasor'}
                   className="w-full bg-[#040e20] border border-cyan-500/40 rounded px-3 py-2 text-cyan-100 focus:outline-none focus:border-cyan-400"
                 />
               </div>

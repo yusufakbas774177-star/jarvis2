@@ -3,14 +3,15 @@ export type SystemView = 'hud' | 'smarthome' | 'files' | 'transfer';
 export interface SmartDevice {
   id: string;
   name: string;
-  room: 'living_room' | 'lab' | 'bedroom' | 'garage' | 'power_grid';
-  type: 'light' | 'thermostat' | 'lock' | 'audio' | 'power' | 'defense';
+  room: string; // User-defined room name (e.g., Salon, Yatak Odası, Çalışma Odası, Mutfak)
+  type: 'light' | 'thermostat' | 'lock' | 'audio' | 'power' | 'tv' | 'fan' | 'vacuum';
   state: boolean;
-  value?: number; // temperature, brightness, volume, power MW
+  value?: number; // temperature, brightness, volume, etc.
   unit?: string;
   color?: string;
   details?: string;
   lastUpdated?: string;
+  ipAddress?: string;
 }
 
 export interface FileItem {
@@ -37,11 +38,11 @@ export interface TransferJob {
   sizeBytes: number;
   source: string;
   destination: string;
-  protocol: 'Stark Quantum Tunnel' | 'Orbital Satellite Uplink' | 'Local Mesh RF' | 'Direct Fiber Link';
+  protocol: 'Stark Quantum Tunnel' | 'Orbital Satellite Uplink' | 'Local Mesh RF' | 'Direct Fiber Link' | 'Encrypted VPN' | 'Local P2P';
   progress: number; // 0 to 100
   speed: string;
   status: 'PENDING' | 'TRANSFERRING' | 'COMPLETED' | 'PAUSED' | 'FAILED';
-  cipher: 'STARK-SHA-512' | 'AES-256-GCM' | 'NANOTECH-QUANTUM';
+  cipher: 'STARK-SHA-512' | 'AES-256-GCM' | 'NANOTECH-QUANTUM' | 'TLS-1.3';
   startedAt: string;
   eta: string;
 }

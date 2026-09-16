@@ -42,12 +42,12 @@ export const JarvisConsole: React.FC<JarvisConsoleProps> = ({
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   const quickPrompts = [
-    { label: '💡 Tüm Işıkları Aç', cmd: 'Tüm ev ve atölye ışıklarını aç.' },
-    { label: '❄️ Klimayı 22°C Yap', cmd: 'Salon sıcaklığını 22 dereceye ayarla.' },
-    { label: '🛡️ Güvenliği Kilitle', cmd: 'Tüm giriş ve laboratuvar kilitlerini aktif et.' },
-    { label: '📁 C: Diskini Tara', cmd: 'C: sürücüsündeki sistem ve kullanıcı dosyalarını listele.' },
-    { label: '⚡ Kuantum Veri Aktar', cmd: 'Mark 85 zırh verilerini Veronica uydusuna aktar.' },
-    { label: '📊 Sistem Raporu', cmd: 'Ark reaktörü ve genel sistem durumunu raporla.' }
+    { label: '💡 Işıkları Aç', cmd: 'Evdeki tüm ışıkları aç.' },
+    { label: '❄️ Klimayı 22°C Yap', cmd: 'Klimayı 22 dereceye ayarla.' },
+    { label: '🛡️ Güvenliği Kilitle', cmd: 'Akıllı kapı kilitlerini aktif et.' },
+    { label: '📁 C: Diskini Tara', cmd: 'C: sürücüsündeki kullanıcı dosyalarını ve belgeleri listele.' },
+    { label: '☁️ Verileri Yedekle', cmd: 'Önemli çalışma dosyalarını güvenli buluta aktar.' },
+    { label: '📍 Hava Durumu & Konum', cmd: 'Aktif konumumdaki hava durumunu ve ortamı değerlendir.' }
   ];
 
   // Auto-scroll chat to bottom
@@ -121,12 +121,12 @@ export const JarvisConsole: React.FC<JarvisConsoleProps> = ({
           <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
           <Terminal className="w-4 h-4 text-cyan-300" />
           <span className="font-['Orbitron'] text-xs font-bold text-cyan-200 tracking-wider">
-            J.A.R.V.I.S. NÖRAL İLETİŞİM PROTOKOLÜ
+            J.A.R.V.I.S. ASİSTAN KONSOLU
           </span>
         </div>
         <div className="flex items-center space-x-2 text-[10px] text-cyan-400/80 font-mono">
           <span className="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40">
-            GEMINI-3.8-FLASH AI
+            GEMINI AI MOTORU
           </span>
           <span className="text-emerald-400">● ÇEVRİMİÇİ</span>
         </div>
@@ -153,7 +153,7 @@ export const JarvisConsole: React.FC<JarvisConsoleProps> = ({
                   </>
                 ) : (
                   <>
-                    <span className="text-[11px] font-bold text-amber-300 font-['Orbitron']">TONY STARK</span>
+                    <span className="text-[11px] font-bold text-amber-300 font-['Orbitron']">KULLANICI</span>
                     <User className="w-3.5 h-3.5 text-amber-400" />
                   </>
                 )}
@@ -183,7 +183,7 @@ export const JarvisConsole: React.FC<JarvisConsoleProps> = ({
                       <Volume2 className="w-3 h-3" />
                       <span>Tekrar Dinle</span>
                     </button>
-                    <span className="text-[9px] text-cyan-500/60 font-mono">STARK VOICE SYNTH</span>
+                    <span className="text-[9px] text-cyan-500/60 font-mono">SES MOTORU</span>
                   </div>
                 )}
 
@@ -241,7 +241,7 @@ export const JarvisConsole: React.FC<JarvisConsoleProps> = ({
         {isLoading && (
           <div className="flex items-center space-x-2 text-xs text-cyan-400 animate-pulse p-2">
             <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-300" />
-            <span className="font-['Orbitron'] text-[11px]">J.A.R.V.I.S. Nöral Ağları Analiz Ediyor...</span>
+            <span className="font-['Orbitron'] text-[11px]">J.A.R.V.I.S. Komutunuzu İşliyor...</span>
           </div>
         )}
       </div>
@@ -301,7 +301,7 @@ export const JarvisConsole: React.FC<JarvisConsoleProps> = ({
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={isListening ? 'Sizi dinliyorum efendim...' : "J.A.R.V.I.S.'a bir komut veya soru yazın..."}
-            className="w-full bg-[#040f21] border border-cyan-500/40 rounded-lg px-3 py-2 text-xs text-cyan-100 placeholder-cyan-600/60 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-sans tracking-wide"
+            className="w-full bg-[#040e20] border border-cyan-500/40 rounded-lg px-3 py-2 text-xs text-cyan-100 placeholder-cyan-600/60 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-sans tracking-wide"
           />
         </div>
 

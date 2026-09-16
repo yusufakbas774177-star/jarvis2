@@ -44,24 +44,26 @@ async function startServer() {
       }
 
       const client = getAI();
-      const systemInstruction = `Sen Iron Man / Tony Stark'ın efsanevi yapay zeka asistanı J.A.R.V.I.S. (Just A Rather Very Intelligent System)'sın.
-Kullanıcıya daima "Efendim" veya "Sayın Stark" diye hitap et. Tonun nazik, son derece zeki, hafif esprili, İngiliz beyefendisi tarzında ve teknik olarak kusursuz olmalıdır.
+      const systemInstruction = `Sen kullanıcının kişisel akıllı yapay zeka asistanı J.A.R.V.I.S.'sın.
+Kullanıcıya daima "Efendim" diye hitap et. Tonun nazik, son derece zeki, saygılı, hafif esprili, İngiliz beyefendisi zarafetinde ve teknik olarak kusursuz olmalıdır.
 Türkçe konuşuyorsun.
+Film repliklerini (Malibu, Ark Reaktörü çekirdeği, Mark zırhları gibi kurgusal ögeleri) doğrudan tekrarlama; bunun yerine kullanıcının gerçek çalışma ortamına, kendi eklediği akıllı ev cihazlarına, yerel bilgisayar dosyalarına ve konumuna odaklan.
 
 Aşağıdaki komut ve durum yeteneklerine sahipsin:
-1. Akıllı Ev Kontrolü (Işıklar, Termostat/Klima, Güvenlik Kilitleri, Ark Reaktörü Gücü, Ses Sistemi, Lab Protokolleri).
-2. Bilgisayar Dosya Yönetimi (C: ve D: diskleri, Stark Gizli Arşivleri, dosya arama, inceleme ve izinler).
-3. Veri Aktarımı (Kuantum Stark Link, Cloud aktarımı, uydu bağlantısı, şifreli veri paketleri).
+1. Akıllı Ev Kontrolü (Kullanıcının eklediği lambalar, klimalar, kilitler, akıllı prizler, TV ve cihazlar).
+2. Bilgisayar Dosya Yönetimi (C:, D:, Z: diskleri, yerel dosyalar, arama, inceleme ve dosya indirme/açma).
+3. Veri Aktarımı (Yerel dosyaların güvenli bulut sunucusuna veya ağ depolarına aktarımı, hız ve durum takibi).
+4. Konum ve Hava Durumu Analizi (Kullanıcının aktif konumu ve anlık ortam şartları).
 
 Kullanıcının isteğini analiz et ve yanıtınla birlikte eğer bir işlem yapılması gerekiyorsa aşağıdaki JSON formatında aksiyonlar üret.
 Yanıtını MUTLAKA JSON formatında ver:
 {
-  "speechText": "Kullanıcıya söylenecek kısa ve asil sesli/metin yanıt (J.A.R.V.I.S. tarzı)",
+  "speechText": "Kullanıcıya söylenecek kısa, zarif ve bilgilendirici sesli/metin yanıt (J.A.R.V.I.S. tarzı)",
   "actions": [
     {
       "type": "SMART_HOME_CONTROL" | "FILE_OPERATION" | "DATA_TRANSFER" | "SYSTEM_DIAGNOSTIC",
-      "target": "string (örn: 'lights_living_room', 'thermostat', 'file_search', 'stark_link_upload')",
-      "value": "any (örn: true, false, 22, 'C:/Stark_Plans', vb.)",
+      "target": "string (örn: 'lights', 'thermostat', 'file_search', 'data_sync')",
+      "value": "any (örn: true, false, 22, 'C:/Users/...', vb.)",
       "details": "string (işlem detayı)"
     }
   ]
@@ -115,8 +117,8 @@ Eğer sadece bir sohbet veya bilgi sorusuysa "actions" dizisini boş bırak. Sad
             details: turnOn ? 'Işıklar aktif hale getirildi.' : 'Işıklar kapatıldı.'
           });
           speech = turnOn 
-            ? 'Tüm yaşam alanı ve atölye aydınlatmaları yüzde yüz parlaklığa ayarlandı efendim.'
-            : 'Aydınlatmalar kapatıldı efendim. Gece gizlilik protokolü devrede.';
+            ? 'Tüm odalardaki aydınlatmalar aktif edildi efendim.'
+            : 'Aydınlatmalar kapatıldı efendim.';
         } else if (lower.includes('sıcaklık') || lower.includes('derece') || lower.includes('klima')) {
           const numMatch = message.match(/\d+/);
           const targetTemp = numMatch ? parseInt(numMatch[0]) : 22;
@@ -126,33 +128,33 @@ Eğer sadece bir sohbet veya bilgi sorusuysa "actions" dizisini boş bırak. Sad
             value: targetTemp,
             details: `İklimlendirme ${targetTemp}°C seviyesine ayarlandı.`
           });
-          speech = `İklimlendirme sistemleri ${targetTemp} santigrat dereceye dengeleniyor efendim.`;
+          speech = `Termostat ve iklimlendirme sistemleri ${targetTemp} santigrat dereceye ayarlandı efendim.`;
         } else if (lower.includes('dosya') || lower.includes('klasör') || lower.includes('arşiv') || lower.includes('ara')) {
           actions.push({
             type: 'FILE_OPERATION',
             target: 'file_search',
             value: message,
-            details: 'Stark dosya dizini tarandı.'
+            details: 'Dosya dizini tarandı.'
           });
-          speech = 'Yerel diskler ve Stark şifreli arşivleri tarandı efendim. Ekranda listeleniyor.';
+          speech = 'Yerel diskleriniz ve çalışma dosyalarınız tarandı efendim. Dosya Gezgini panelinde görüntüleyebilirsiniz.';
         } else if (lower.includes('aktar') || lower.includes('gönder') || lower.includes('yükle') || lower.includes('transfer')) {
           actions.push({
             type: 'DATA_TRANSFER',
-            target: 'stark_link_upload',
-            value: 'Stark_Orbital_Payload.bin',
-            details: 'Kuantum StarkLink veri aktarımı başlatıldı.'
+            target: 'data_upload',
+            value: 'Guvenli_Veri_Paketi.zip',
+            details: 'Güvenli veri aktarımı başlatıldı.'
           });
-          speech = 'Kuantum veri aktarım kanalı açıldı efendim. Güvenli StarkLink protokolü üzerinden paket transferi başladı.';
+          speech = 'Güvenli veri aktarım kanalı açıldı efendim. Paketler bulut sunucunuza aktarılıyor.';
         } else if (lower.includes('protokol') || lower.includes('güvenlik') || lower.includes('kilitle')) {
           actions.push({
             type: 'SMART_HOME_CONTROL',
             target: 'security',
             value: true,
-            details: 'Maksimum güvenlik protokolü aktif.'
+            details: 'Güvenlik kilitleri aktif.'
           });
-          speech = 'Ev ve laboratuvar güvenlik kilitleri devreye alındı. Biyometrik tarama aktif efendim.';
+          speech = 'Tüm akıllı kapı kilitleri ve güvenlik protokolleri devreye alındı efendim.';
         } else {
-          speech = 'Emredersiniz efendim. J.A.R.V.I.S. emirlerinizi bekliyor. Akıllı ev sistemleri, yerel dosyalarınız ve veri transfer modülleri tam kapasiteyle hizmetinizde.';
+          speech = 'Emredersiniz efendim. J.A.R.V.I.S. hizmetinizde. Evinizdeki akıllı ürünler, yerel dosyalarınız ve veri aktarımı emrinizdedir.';
         }
 
         return res.json({
